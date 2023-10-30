@@ -2,14 +2,17 @@ import 'package:firebase_ecommerce_app/global_widgets/custom_button.dart';
 import 'package:firebase_ecommerce_app/global_widgets/custom_widget.dart';
 import 'package:flutter/material.dart';
 
-class ProductDetailsScreen extends StatelessWidget {
+class ProductDetailsScreen extends StatefulWidget {
   final Map<String, String> product;
 
   const ProductDetailsScreen({super.key, required this.product});
 
   @override
-  Widget build(BuildContext context) {
-    List<String> producyVarient = [
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  List<String> producyVarient = [
       '35',
       '36',
       '37',
@@ -19,7 +22,9 @@ class ProductDetailsScreen extends StatelessWidget {
     ];
 
     int selectedIndex = 0;
-
+    
+  @override
+  Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -39,7 +44,7 @@ class ProductDetailsScreen extends StatelessWidget {
               color: const Color(0xFFEEEDED),
               child: Center(
                 child: Image.network(
-                  product['image']!,
+                  widget.product['image']!,
                   height: 200,
                   width: 250,
                 ),
@@ -52,7 +57,7 @@ class ProductDetailsScreen extends StatelessWidget {
                 children: [
                   // Product Name Section
                   Text(
-                    product['name'] ?? 'Dafult Name',
+                    widget.product['name'] ?? 'Dafult Name',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold
@@ -74,7 +79,7 @@ class ProductDetailsScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "\$${product['price'] ?? 'Not Available'}",
+                        "\$${widget.product['price'] ?? 'Not Available'}",
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold
@@ -133,7 +138,9 @@ class ProductDetailsScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
-                      selectedIndex = index;
+                      setState(() {
+                        selectedIndex = index;
+                      });
                     },
                     child: Container(
                       height: 40,

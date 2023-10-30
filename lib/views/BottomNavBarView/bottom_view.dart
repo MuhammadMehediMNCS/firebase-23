@@ -1,3 +1,4 @@
+import 'package:firebase_ecommerce_app/views/CartScreen/cart_screen.dart';
 import 'package:firebase_ecommerce_app/views/HomeScreen/home_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +17,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
   List<Widget> screens = [
     const HomeScreen(),
     const Center(child: Text('Fav Screen')),
-    const Center(child: Text('Cart Screen')),
+    const CartScreen(),
     const Center(child: Text('Profile Screen')),
   ];
 
