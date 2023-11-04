@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ecommerce_app/global_widgets/custom_button.dart';
 import 'package:firebase_ecommerce_app/global_widgets/custom_widget.dart';
 import 'package:firebase_ecommerce_app/helpers/form_helper.dart';
@@ -6,9 +7,20 @@ import 'package:firebase_ecommerce_app/views/Authentication/RegisterScreen/regis
 import 'package:firebase_ecommerce_app/views/BottomNavBarView/bottom_view.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passordController = TextEditingController();
+  final _auth = FirebaseAuth.instance;
+
+  bool obscureText = true;
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,17 +56,32 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(height: 80),
                 Column(
                   children: [
-                    const CustomTextField(
+                    CustomTextField(
+                      controller: _emailController,
                       hintText: 'Email',
                     ),
                     const SizedBox(height: 15),
                     CustomTextField(
+                      controller: _passordController,
                       hintText: 'Password',
-                      secured: true,
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.visibility),
-                        onPressed: () {}
-                      ),
+                      secured: obscureText,
+                      suffixIcon: obscureText == true
+                        ? IconButton(
+                            icon: const Icon(Icons.visibility),
+                            onPressed: () {
+                              setState(() {
+                                obscureText = false;
+                              });
+                            }
+                          )
+                        : IconButton(
+                          icon: const Icon(Icons.visibility_off),
+                          onPressed:() {
+                            setState(() {
+                              obscureText = true;
+                            });
+                          }
+                        ),
                     ),
                     const SizedBox(height: 10),
                     Row(
@@ -74,12 +101,15 @@ class LoginScreen extends StatelessWidget {
                     CustomButton(
                       buttonTitle: 'Login',
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const BottomBarScreen(),
-                          ),
-                        );
+                        try {
+                          _auth.signInWithEmailAndPassword(
+                            email: _emailController.text,
+                            password: _passordController.text
+                          );
+                          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const BottomBarScreen()), (route) => false);
+                        } catch(e) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                        }
                       },
                     ),
                     const SizedBox(height: 15),

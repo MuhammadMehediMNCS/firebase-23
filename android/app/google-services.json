@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "387548921700",
+    "project_id": "lwn-ecommerce-b1767",
+    "storage_bucket": "lwn-ecommerce-b1767.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:387548921700:android:d43d9adc2459567dc14471",
+        "android_client_info": {
+          "package_name": "com.example.firebase_ecommerce_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtdIsTRxzt7SkKdNWHiyIeCcSZcGPE-OE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

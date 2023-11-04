@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ecommerce_app/views/BottomNavBarView/bottom_view.dart';
 import 'package:firebase_ecommerce_app/views/WelcomeScreen/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final user = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -20,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 3), () {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+          MaterialPageRoute(builder: (_) => user != null ? const BottomBarScreen() : const WelcomeScreen()),
           (route) => false,
         );
       }

@@ -33,6 +33,13 @@ dependencies:
 
 
   carousel_slider:
+  # All Firebase Services :
+  firebase_core:
+  # For Authentication :
+  firebase_auth:
+  # For Store All Apps Data :
+  cloud_firestore:
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
