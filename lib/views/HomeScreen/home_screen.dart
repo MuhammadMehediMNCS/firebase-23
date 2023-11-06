@@ -1,5 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_ecommerce_app/global_widgets/custom_widget.dart';
+import 'package:firebase_ecommerce_app/views/ProductByCategory/product_by_categorys.dart';
 import 'package:firebase_ecommerce_app/views/ProductDetails/product_details.dart';
 import 'package:flutter/material.dart';
 
@@ -13,31 +15,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> sliderImages = [
-    'https://img.freepik.com/premium-vector/sale-banner-template-design_74379-121.jpg',
-    'https://img.freepik.com/premium-vector/mega-sale-discount-banner-template-promotion_148524-1103.jpg',
-    'https://img.freepik.com/premium-vector/modern-big-sale-banner_18622-513.jpg'
-  ];
+  final fireStore = FirebaseFirestore.instance;
 
-  List<Map<String, String>> categories = [
-    {
-      'icon': 'assets/images/1.png',
-    },
-    {
-      'icon': 'assets/images/2.png',
-    },
-    {
-      'icon': 'assets/images/3.png',
-    },
-    {
-      'icon': 'assets/images/4.png',
-    },
-    {
-      'icon': 'assets/images/5.png',
-    }
-  ];
+  List firebaseSlider = [];
 
-  List<Map<String, String>> products = [
+  Future<void> getSliders() async {
+    fireStore.collection('banners').get().then((value) {
+      firebaseSlider = value.docs;
+    });
+  }
+
+  /*
+  List<Map<String, dynamic>> products = [
     {
       'image' : 'https://i.ibb.co/8BntMyD/6-44mm-blu-889c7c8b-e883-41ab-856c-38c9dd970d12-1200x-removebg-preview-2.png',
       'price' : '40',
@@ -68,6 +57,23 @@ class _HomeScreenState extends State<HomeScreen> {
     },
   ];
 
+  // Create products folder in firebase and add products info.
+  Future addProducts() async {
+    for(var product in products) {
+      fireStore.collection('products').add(products as Map<String, dynamic>);
+    }
+  }
+  */
+
+  @override
+  void initState() {
+    super.initState();
+
+    getSliders();
+
+    //addProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,18 +102,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 "Let's start shopping!",
                 style: TextStyle(color: Colors.black.withOpacity(.5)),
               ),
-              Container(
+              firebaseSlider.isEmpty ? const Center(child: CircularProgressIndicator()) : Container(
                 height: 150,
                 margin: const EdgeInsets.only(top: 20, bottom: 15),
                 width: double.infinity,
                 child: CarouselSlider.builder(
-                  itemCount: 2,
+                  itemCount: firebaseSlider.length,
                   itemBuilder: (context, index, realIndex) {
                     return Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
                         image: DecorationImage(
-                          image: NetworkImage(sliderImages[index]),
+                          image: NetworkImage(firebaseSlider[index]['image']),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -138,28 +144,46 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 5),
-              SizedBox(
-                height: 62,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  primary: false,
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: const EdgeInsets.only(right: 10),
-                      width: 64,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: const Color(0xFFF2F2F2),
-                        border: Border.all(color: const Color(0xFFD8D3D3))
-                      ),
-                      child: Center(
-                        child: Image.asset(categories[index]['icon']!),
+              StreamBuilder(
+                stream: fireStore.collection('categories').snapshots(),
+                builder: (_, snapshot) {
+                  if(snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else {
+                    return SizedBox(
+                      height: 62,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        shrinkWrap: true,
+                        primary: false,
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ProductByCategorys(category: snapshot.data!.docs[index],)));
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 10),
+                              width: 64,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: const Color(0xFFF2F2F2),
+                                border: Border.all(color: const Color(0xFFD8D3D3))
+                              ),
+                              child: Center(
+                                child: Image.network(
+                                  snapshot.data!.docs[index]['icon'],
+                                  width: 40,
+                                  color: Colors.black.withOpacity(.7),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     );
-                  },
-                ),
+                  }
+                }
               ),
               // Recent Product
               const SizedBox(height: 15),
@@ -168,81 +192,94 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
               ),
               const SizedBox(height: 15),
-              GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 15,
-                  mainAxisSpacing: 15,
-                  childAspectRatio: .8
-                ),
-                itemCount: 6,
-                shrinkWrap: true,
-                primary: false,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: products[index],)));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF2F2F2),
-                        borderRadius: BorderRadius.circular(15)
+              StreamBuilder(
+                stream: fireStore.collection('products').snapshots(),
+                builder: (context, snapshot) {
+                  if(snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else {
+                    return GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 15,
+                        mainAxisSpacing: 15,
+                        childAspectRatio: .8
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 150,
-                            width: double.infinity,
+                      itemCount: snapshot.data!.docs.length,
+                      shrinkWrap: true,
+                      primary: false,
+                      itemBuilder: (context, index) {
+                        final data = snapshot.data!.docs[index];
+
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: data)));
+                          },
+                          child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              image: DecorationImage(
-                                image: NetworkImage(products[index]['image']!),
-                                fit: BoxFit.cover,
-                              ),
+                              color: const Color(0xFFF2F2F2),
+                              borderRadius: BorderRadius.circular(15)
                             ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(
-                                    Icons.favorite_border,
-                                    color: Colors.black.withOpacity(.5),
+                                Container(
+                                  height: 150,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    image: DecorationImage(
+                                      image: NetworkImage(data['image']),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {},
+                                        icon: Icon(
+                                          Icons.favorite_border,
+                                          color: Colors.black.withOpacity(.5),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        data['name'] ?? 'Comming soon',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 15
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        '\$${data['price'] ?? 'Up Comming'}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18
+                                        ),
+                                      )
+                                    ],
                                   ),
                                 )
                               ],
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  products[index]['name'] ?? 'Default Title',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 15
-                                    ),
-                                  ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  '\$${products[index]['price'] ?? 'Up Comming'}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18
-                                  ),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+                        );
+                      },
+                    );
+                  }
+                }
+              )
             ],
           ),
         ),

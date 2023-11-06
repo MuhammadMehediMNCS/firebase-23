@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ecommerce_app/global_widgets/custom_button.dart';
 import 'package:firebase_ecommerce_app/global_widgets/custom_widget.dart';
 import 'package:flutter/material.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
-  final Map<String, String> product;
+  final QueryDocumentSnapshot<Map<String, dynamic>> product;
 
   const ProductDetailsScreen({super.key, required this.product});
 
@@ -12,16 +14,22 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  List<String> producyVarient = [
-      '35',
-      '36',
-      '37',
-      '38',
-      '39',
-      '40'
-    ];
+  final user = FirebaseAuth.instance.currentUser;
+  int selectedIndex = 0;
+  String? selectedVariant;
 
-    int selectedIndex = 0;
+  void changedSelectedValue() {
+    setState(() {
+      selectedVariant = widget.product['variant'].isEmpty ? 'null' : widget.product['variant'][0];
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    changedSelectedValue();
+  }
     
   @override
   Widget build(BuildContext context) {
@@ -44,7 +52,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               color: const Color(0xFFEEEDED),
               child: Center(
                 child: Image.network(
-                  widget.product['image']!,
+                  widget.product['image'],
                   height: 200,
                   width: 250,
                 ),
@@ -57,7 +65,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 children: [
                   // Product Name Section
                   Text(
-                    widget.product['name'] ?? 'Dafult Name',
+                    widget.product['name'] ?? 'Comming soon',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold
@@ -103,7 +111,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                   ),
                   Text(
-                    "The upgraded S6 S/P runs up to 20 percent faster, allowing apps to also launch 20 percent faster, while maintaining the same all-day 18-hour battery life",
+                    widget.product['description'] ?? 'Up Comming',
                     style: TextStyle(
                       color: Colors.black.withOpacity(.5)
                     ),
@@ -133,13 +141,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: ListView.builder(
                 shrinkWrap: true,
                 primary: false,
-                itemCount: 6,
+                itemCount: widget.product['variant'].length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
                       setState(() {
                         selectedIndex = index;
+                        selectedVariant = widget.product['variant'][index];
                       });
                     },
                     child: Container(
@@ -153,7 +162,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          producyVarient[index],
+                          widget.product['variant'][index],
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             color: selectedIndex == index ? Colors.white : Colors.black
@@ -165,8 +174,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 }
               ),
             ),
-            const CustomButton(
-              buttonTitle: 'Add to Cart'
+            CustomButton(
+              buttonTitle: 'Add to Cart',
+              onTap: () async {
+                await FirebaseFirestore.instance.collection('users').doc(user!.email).collection('cart').add({
+                  'user-email': user!.email,
+                  'name': widget.product['name'],
+                  'image': widget.product['image'],
+                  'price': widget.product['price'],
+                  'cat-id': widget.product['cat-id'],
+                  'variant': selectedVariant,
+                  'quantity': 1
+                }).then((value) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Successfully added your cart page')));
+                });
+              },
             )
           ],
         ),

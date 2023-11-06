@@ -100,9 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 15),
                     CustomButton(
                       buttonTitle: 'Login',
-                      onTap: () {
+                      onTap: () async {
                         try {
-                          _auth.signInWithEmailAndPassword(
+                          await FirebaseAuth.instance.signInWithEmailAndPassword(
                             email: _emailController.text,
                             password: _passordController.text
                           );

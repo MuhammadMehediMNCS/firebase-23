@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ecommerce_app/global_widgets/custom_button.dart';
 import 'package:firebase_ecommerce_app/global_widgets/custom_widget.dart';
 import 'package:firebase_ecommerce_app/helpers/form_helper.dart';
+import 'package:firebase_ecommerce_app/utils/config.dart';
 import 'package:firebase_ecommerce_app/views/Authentication/LoginScreen/login_screen.dart';
 import 'package:firebase_ecommerce_app/views/HomeScreen/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -116,8 +118,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 20),
                       CustomButton(
                         buttonTitle: 'Sign Up',
-                        onTap: () {
+                        onTap: () async {
                           final form = _formKey.currentState!;
+                          final userData = await FirebaseFirestore.instance.collection('users').where(
+                                            'email', isEqualTo: _emailController.text
+                                          ).get();
 
                           if(form.validate()) {
                             if(_passwordController.text != _confirmController.text) {
@@ -128,6 +133,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   email: _emailController.text,
                                   password: _passwordController.text
                                 );
+                                if(userData.docs.isEmpty) {
+                                  await FirebaseFirestore.instance.collection('users').doc(_emailController.text).set({
+                                    'email': _emailController.text,
+                                    'password': _passwordController.text,
+                                    'balance': 0,
+                                    'varified': true,
+                                    'name': AppConfig.appName
+                                  });
+                                } else {
+                                  await FirebaseFirestore.instance.collection('users').doc(_emailController.text).update({
+                                    'email': _emailController.text,
+                                    'password': _passwordController.text,
+                                    'balance': 12,
+                                    'varified': true,
+                                    'name': 'Updated Name'
+                                  });
+                                }
+                                
                                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (route) => false);
                               } catch(e) {
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
