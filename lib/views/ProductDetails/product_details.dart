@@ -72,8 +72,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                   ),
                   // Product Rating Section
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Icon(Icons.star, color: Colors.orangeAccent, size: 20,),
                       Icon(Icons.star, color: Colors.orangeAccent, size: 20,),
                       Icon(Icons.star, color: Colors.orangeAccent, size: 20,),

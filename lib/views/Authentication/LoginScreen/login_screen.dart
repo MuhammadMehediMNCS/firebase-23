@@ -17,7 +17,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passordController = TextEditingController();
-  final _auth = FirebaseAuth.instance;
 
   bool obscureText = true;
   

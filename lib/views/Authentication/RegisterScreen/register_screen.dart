@@ -5,7 +5,7 @@ import 'package:firebase_ecommerce_app/global_widgets/custom_widget.dart';
 import 'package:firebase_ecommerce_app/helpers/form_helper.dart';
 import 'package:firebase_ecommerce_app/utils/config.dart';
 import 'package:firebase_ecommerce_app/views/Authentication/LoginScreen/login_screen.dart';
-import 'package:firebase_ecommerce_app/views/HomeScreen/home_screen.dart';
+import 'package:firebase_ecommerce_app/views/BottomNavBarView/bottom_view.dart';
 import 'package:flutter/material.dart';
 
 import '../../../utils/colors.dart';
@@ -151,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   });
                                 }
                                 
-                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (route) => false);
+                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => BottomBarScreen()), (route) => false);
                               } catch(e) {
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
                               }

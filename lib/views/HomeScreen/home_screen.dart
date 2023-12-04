@@ -1,6 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ecommerce_app/global_widgets/custom_widget.dart';
+import 'package:firebase_ecommerce_app/views/Authentication/LoginScreen/login_screen.dart';
 import 'package:firebase_ecommerce_app/views/ProductByCategory/product_by_categorys.dart';
 import 'package:firebase_ecommerce_app/views/ProductDetails/product_details.dart';
 import 'package:flutter/material.dart';
@@ -81,7 +83,17 @@ class _HomeScreenState extends State<HomeScreen> {
         context: context,
         isLeading: const Icon(Icons.menu),
         action: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search))
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.search)
+          ),
+          IconButton(
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (route) => false);
+            },
+            icon: const Icon(Icons.logout)
+          )
         ]
       ),
       body: Padding(
